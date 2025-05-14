@@ -51,6 +51,12 @@ export function ApiKeySidebar({ onApiKeyChange }: ApiKeySidebarProps) {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveApiKey();
+    }
+  };
+
   return (
     <Sidebar className="border-r border-border bg-card">
       <SidebarHeader className="p-4 border-b border-border">
@@ -96,12 +102,24 @@ export function ApiKeySidebar({ onApiKeyChange }: ApiKeySidebarProps) {
                       setApiKey(e.target.value);
                       setIsSaved(false);
                     }}
+                    onKeyPress={handleKeyPress}
                   />
                   {isSaved && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       <CheckIcon className="h-4 w-4 text-green-500" />
                     </div>
                   )}
+                </div>
+                <div className="mt-2 flex justify-end">
+                  <Button
+                    size="sm"
+                    onClick={handleSaveApiKey}
+                    className="flex items-center justify-center w-full gap-2"
+                    disabled={!apiKey.trim() || isSaved}
+                  >
+                    <SaveIcon className="h-4 w-4" />
+                    Enter API Key
+                  </Button>
                 </div>
               </div>
 
@@ -120,8 +138,6 @@ export function ApiKeySidebar({ onApiKeyChange }: ApiKeySidebarProps) {
           </Card>
 
           <div className="space-y-2">
-          
-            
             <div className="mt-4 bg-primary/5 rounded-md p-3 text-xs border border-primary/10">
               <p className="font-medium text-primary mb-1">Model information</p>
               <p className="text-muted-foreground">

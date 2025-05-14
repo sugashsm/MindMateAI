@@ -41,6 +41,14 @@ Remember to:
 `;
 
 /**
+ * Validates the Gemini API key format
+ */
+function validateApiKey(apiKey: string): boolean {
+  // Basic validation for Gemini API key format
+  return /^[A-Za-z0-9_-]{20,}$/.test(apiKey.trim());
+}
+
+/**
  * Extract reasoning and answer from Gemini response
  */
 function extractReasoningAndAnswer(text: string): { reasoning: string; answer: string } {
@@ -61,13 +69,30 @@ export async function sendToGemini(
   contextInfo: string = '',
   apiKey: string = ''
 ): Promise<{ content: string; reasoning: string }> {
+  // Validate API key
   if (!apiKey) {
     throw new Error('Gemini API key is not provided. Please add your API key to use this feature.');
+  }
+
+  if (!validateApiKey(apiKey)) {
+    throw new Error('Invalid API key format. Please check your API key and try again.');
   }
 
   try {
     // Initialize the API with the provided key
     const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Test the API connection first
+    try {
+      await genAI.getGenerativeModel({ model: "gemini-1.5-flash" }).generateContent("test");
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('unauthorized') || error.message.includes('invalid')) {
+          throw new Error('Invalid API key. Please check your API key and try again.');
+        }
+      }
+      throw error;
+    }
     
     // Available models: gemini-1.5-flash, gemini-1.5-pro, etc.
     const model = genAI.getGenerativeModel({ 
@@ -103,6 +128,17 @@ export async function sendToGemini(
     };
   } catch (error) {
     console.error('Error calling Gemini API:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('quota') || error.message.includes('rate limit')) {
+        throw new Error('API rate limit exceeded. Please try again in a moment.');
+      }
+      if (error.message.includes('network') || error.message.includes('timeout')) {
+        throw new Error('Network error. Please check your internet connection and try again.');
+      }
+    }
+    
     throw error;
   }
 }
