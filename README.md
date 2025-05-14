@@ -95,6 +95,3 @@ Google's Gemini API is utilized for:
 
 This AI assistant is not a replacement for professional mental health care. If you're experiencing serious mental health issues, please seek help from qualified mental health professionals.
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
